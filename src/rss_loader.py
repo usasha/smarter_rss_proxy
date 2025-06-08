@@ -8,7 +8,8 @@ class Feed:
         self.url = url
         response = requests.get(url, timeout=10)
         response.raise_for_status()
-        self.feed = feedparser.parse(response.content)
+        self.raw_content = response.content
+        self.feed = feedparser.parse(self.raw_content)
 
         assert self.feed.get('bozo') != 1 and self.feed.get('entries'), 'Error parsing feed'
 

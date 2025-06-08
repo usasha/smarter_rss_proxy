@@ -10,6 +10,7 @@ A simple Python script for loading and displaying RSS feeds from specified URLs.
 - Command-line interface with customizable options
 - Error handling for network and parsing issues
 - Can be used as a standalone script or imported as a module
+- FastAPI server for serving RSS feeds via HTTP endpoints
 
 ## Installation
 
@@ -106,3 +107,51 @@ The script handles various error scenarios:
 - Timeouts
 
 If an error occurs, an appropriate error message will be displayed, and the script will exit with a non-zero status code.
+
+## API Server
+
+The project includes a FastAPI server that serves RSS feeds via HTTP endpoints.
+
+### Running the API Server
+
+To start the API server:
+
+```
+python src/api.py
+```
+
+This will start the server on http://0.0.0.0:8000.
+
+### API Endpoints
+
+The API server provides the following endpoints:
+
+- `GET /` - Root endpoint with API information
+- `GET /feed/info?url=<rss_url>` - Get feed information (title, link, description, entry count)
+- `GET /feed/entries?url=<rss_url>&limit=10&filter_ai=false` - Get feed entries
+  - `url` (required): The URL of the RSS feed
+  - `limit` (optional, default=10): Maximum number of entries to return
+  - `filter_ai` (optional, default=false): Filter out entries with 'ai' or 'llm' in the title
+- `GET /feed/raw?url=<rss_url>` - Get the raw RSS feed content as JSON
+- `GET /feed/rss` - Get the RSS feed content in XML format for standard RSS clients (uses the feed that was previously loaded via /feed/info or /feed/entries)
+
+### API Documentation
+
+The API documentation is available at:
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
+
+### Testing the API
+
+A test script is provided to verify that the API server works correctly:
+
+```
+python src/test_api.py
+```
+
+This script will:
+1. Start the API server
+2. Test all the endpoints
+3. Stop the server after the tests
+
+The test script uses the Hacker News RSS feed (https://news.ycombinator.com/rss) for testing.
