@@ -1,6 +1,7 @@
 import feedparser
 import requests
-from typing import Dict, List, Any, Optional, Callable
+from typing import Dict, List, Any, Callable
+import xml.etree.ElementTree as ET
 
 
 class Feed:
@@ -35,14 +36,18 @@ class Feed:
         """
         return self.feed.get('entries', [])
 
-    def filter_entries(self, filter_function: Callable) -> List[Dict[str, Any]]:
+    def filter(self, filter_function: Callable) -> 'Feed':
         """
         Filter feed entries by a provided function.
-        :param filter_function: accepts entry, return True if entry should be kept, False otherwise
-        :return: feed entries filtered by the provided function
+        :param filter_function: accepts entry, returns True if entry should be kept, False otherwise
+        :return: self with filtered entries
         """
-        return [
-            entry
-            for entry in self.feed.entries
-            if filter_function(entry)
-        ]
+        root = ET.fromstring(self.raw_content)
+        channel = root.find('channel')
+        for item in channel.findall('item'):
+            if not filter_function(feedparser.parse(ET.tostring(item)).entries[0]):
+                channel.remove(item)
+                
+        self.raw_content = ET.tostring(root)
+        self.feed = feedparser.parse(self.raw_content)
+        return self

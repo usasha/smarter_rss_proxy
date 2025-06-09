@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.responses import Response
 import uvicorn
@@ -9,7 +11,17 @@ feed = Feed('https://news.ycombinator.com/rss')
 app = FastAPI()
 
 
-@app.get('/feed/rss')
+@asynccontextmanager
+async def lifespan(server: FastAPI):
+    server.state.feed = (
+        Feed('https://news.ycombinator.com/rss')
+        .filter(lambda entry: 'llm' not in entry.get('title', '').lower())
+        .filter(lambda entry: 'ai ' not in entry.get('title', '').lower())
+    )
+    print("Feed size: ", len(server.state.feed.entries))
+    yield
+
+@app.get('/rss')
 async def get_rss_feed():
     """
     Get the RSS feed content in XML format for standard RSS clients.

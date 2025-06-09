@@ -18,7 +18,7 @@ def filter_clickbait(entry: Any) -> bool:
         clickbait, otherwise False.
     """
     return (
-        'llm ' not in entry.get('title', '').lower()
+        'llm' not in entry.get('title', '').lower()
         and 'ai ' not in entry.get('title', '').lower()
     )
 
@@ -40,8 +40,8 @@ def main():
         print(f"   Link: {link}")
 
     print("-" * 50)
-    filtered_entries = feed.filter_entries(filter_clickbait)
-    print(f"Entries after filters: {len(filtered_entries)}")
+    print(f"Entries before filters: {len(feed.entries)}")
+    print(f"Entries after filters: {len(feed.filter(filter_clickbait).entries)}")
 
 
 if __name__ == "__main__":
