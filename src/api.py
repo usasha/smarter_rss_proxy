@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -7,58 +8,29 @@ import uvicorn
 from rss_loader import Feed
 
 
-feed_main = None
-feed_filtered_out = None
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    feed_main = (
-        Feed('https://news.ycombinator.com/rss')
-        # Feed('https://demo.tt-rss.org/public.php?op=rss&id=0&is_cat=1&q=&key=6t72yu68472f4d3f084')
-        .filter(lambda entry: 'llm' not in entry.get('title', '').lower())
-        .filter(lambda entry: 'ai ' not in entry.get('title', '').lower())
-    )
-    feed_filtered_out = (
-        Feed('https://news.ycombinator.com/rss')
-        # Feed('https://demo.tt-rss.org/public.php?op=rss&id=0&is_cat=1&q=&key=6t72yu68472f4d3f084')
-        .filter(lambda entry: "llm" in entry.get("title", "").lower())
-        .filter(lambda entry: "ai " in entry.get("title", "").lower())
-    )
-    print("Feed size: ", len(feed_main.entries))
-    print("Filtered out: ", len(feed_filtered_out.entries))
+    logging.info('Starting API server...')
     yield
 
 app = FastAPI(lifespan=lifespan)
 
 
-@app.get('/rss')
-async def get_rss_feed():
+@app.get('/rss/keyword_filter')
+async def keyword_filter(url: str, keywords: str) -> Response:
     """
-    Get the RSS feed content in XML format for standard RSS clients.
-    Uses the feed that was previously loaded into the Feed class.
-
-    Returns:
-        RSS feed content in XML format with appropriate content type
+    Fetch and filter an RSS feed to exclude entries containing specified keywords in their titles.
+    :param url: The RSS feed URL to fetch for processing
+    :param keywords: A comma-separated string of keywords to exclude from the RSS feed entries
+    :return: Filtered RSS feed
     """
-    return Response(
-        content=feed_main.raw_content,
-        media_type='application/rss+xml'
+    keyword_list = [k.strip().lower() for k in keywords.split(',')]
+    feed = Feed(url).filter(
+        lambda entry: not any(
+            kw in entry.get('title', '').lower() for kw in keyword_list
+        )
     )
-
-
-@app.get('/rss/filtered_out')
-async def get_filtered_out_rss_feed():
-    """
-    Get the RSS feed content in XML format for standard RSS clients.
-    Uses the feed that was previously loaded into the Feed class.
-
-    Returns:
-        RSS feed content in XML format with appropriate content type
-    """
-    return Response(
-        content=feed_filtered_out.raw_content,
-        media_type='application/rss+xml'
-    )
+    return Response(content=feed.raw_content, media_type='application/rss+xml')
 
 
 if __name__ == '__main__':
