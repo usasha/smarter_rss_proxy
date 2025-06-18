@@ -9,8 +9,8 @@ Dead simple Python service for adhoc RSS filtering. Specify URL, topics you want
 ## How to run
 Sign in to [OpenRouter](https://openrouter.ai/settings/keys) and generate the API key
    ```
-   git clone https://github.com/yourusername/smart_rss_proxy.git
-   cd smart_rss_proxy
+   git clone https://github.com/usasha/smarter_rss_proxy.git
+   cd smarter_rss_proxy
    docker build -t smart_rss_proxy .
    docker run -p 8000:8000 -e OPENROUTER_API_KEY=YOUR_API_KEY smart_rss_proxy
    ```
