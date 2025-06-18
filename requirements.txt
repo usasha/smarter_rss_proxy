@@ -8,3 +8,4 @@ beautifulsoup4==4.12.3
 pydantic==2.11.7
 pydantic-ai-slim[openai]==0.3.1
 pytest==8.4.0
+cachetools==5.3.3

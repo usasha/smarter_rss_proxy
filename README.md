@@ -7,7 +7,8 @@ Dead simple Python service for on-the-fly RSS filtering. Specify URL, topics you
 - Excluding content with certain keywords in the title
 
 ## How to run
-Sign in to [OpenRouter](https://openrouter.ai/settings/keys) and generate the API key
+Sign in to [OpenRouter](https://openrouter.ai/settings/keys) and generate the API key. 
+Important: set credit limit for a newly generated key.
    ```
    git clone https://github.com/usasha/smarter_rss_proxy.git
    cd smarter_rss_proxy

@@ -14,7 +14,11 @@ from rss_loader import Feed
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logging.info('Starting API server...')
-    app.state.guard = FeedGuard(config.OPENROUTER_API_KEY, config.MODEL_NAME)
+    app.state.guard = FeedGuard(
+        config.OPENROUTER_API_KEY,
+        config.MODEL_NAME,
+        config.CACHE_SIZE,
+    )
     yield
 
 app = FastAPI(lifespan=lifespan)

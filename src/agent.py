@@ -3,6 +3,8 @@ from dataclasses import dataclass
 
 import httpx
 from bs4 import BeautifulSoup
+
+from cachetools import LRUCache
 from pydantic import BaseModel
 from pydantic_ai import Agent, RunContext
 from pydantic_ai.models.openai import OpenAIModel
@@ -21,15 +23,17 @@ class MyDeps:
 
 
 class FeedGuard:
-    def __init__(self, api_key: str, model: str) -> None:
+    def __init__(self, api_key: str, model: str, cache_size: int) -> None:
         """
         :param api_key: OpenRouter API key
         :param model: model name in provider/name format
+        :param cache_size: size of the cache for storing results of the agent
         """
         model = OpenAIModel(
             model_name=model,
             provider=OpenRouterProvider(api_key=api_key),
         )
+        self.cache = LRUCache(maxsize=cache_size)
         self.agent = Agent(
             model,
             output_type=ContainsThisTypes,
@@ -75,12 +79,18 @@ class FeedGuard:
         Checks if an entry contains specified content types
         :param entry: RSS entry to be checked.
         :param content_types: content types to match against the entry.
-        :return: flag and types list.
+        :return: flag and triggers list.
         """
+        cache_key = f"{entry['title']}_{entry['link']}_{content_types}"
+        if cache_key in self.cache:
+            return self.cache[cache_key]
+
         async with httpx.AsyncClient() as client:
             result = await self.agent.run(
                 f"Content types: {content_types}."
                 f"Entry title: {entry['title']}",
                 deps=MyDeps(feed_entry=entry, http_client=client),
             )
+
+        self.cache[cache_key] = result.output
         return result.output
