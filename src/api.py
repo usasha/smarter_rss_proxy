@@ -1,9 +1,10 @@
+import asyncio
 import logging
 import os
 from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.responses import Response
 import uvicorn
 
@@ -39,17 +40,26 @@ async def keywords_exclude(url: str, keywords: str) -> Response:
 
 
 @app.get('/rss/content_type/exclude')
-async def content_type_exclude(url: str, content_types: str) -> Response:
+async def content_type_exclude(url: str, content_types: str, request: Request) -> Response:
     """
     Fetch and filter an RSS feed to exclude entries containing specified content types.
     :param url: The RSS feed URL to fetch for processing
     :param content_types: A comma-separated string of content types to exclude from the RSS feed entries
+    :param request: request object, passed automatically by FastAPI
     :return: Filtered RSS feed
     """
     content_types = [k.strip().lower() for k in content_types.split(',')]
-    feed = Feed(url).filter(
-        lambda entry: not app.state.guard.check_entry(entry, content_types).contains
+    feed = Feed(url)
+    tasks = [
+        request.app.state.guard.check_entry(entry, content_types)
+        for entry in feed.entries
+    ]
+    entry_to_result = dict(zip(
+        [entry['title'] for entry in feed.entries],
+        await asyncio.gather(*tasks))
     )
+
+    feed = feed.filter(lambda entry: not entry_to_result[entry['title']].contains)
     return Response(content=feed.raw_content, media_type='application/rss+xml')
 
 

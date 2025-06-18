@@ -60,7 +60,7 @@ class FeedGuard:
                 pass
 
             response = await ctx.deps.http_client.get(ctx.deps.feed_entry['link'])
-            text = self._html_to_text(response.content)[:2000]
+            text = self._html_to_text(response.text)[:2000]
             logging.info(f'access article text')
             return text
 
