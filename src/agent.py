@@ -9,18 +9,6 @@ from pydantic_ai.models.openai import OpenAIModel
 from pydantic_ai.providers.openrouter import OpenRouterProvider
 
 
-class Keywords(BaseModel):
-    clickbait: bool
-    ragebait: bool
-    low_effort_content: bool
-    political: bool
-    guide: bool
-    violence: bool
-    advertisement: bool
-    personal_experience: bool
-    technical: bool
-
-
 class ContainsThisTypes(BaseModel):
     contains: bool
     types: list[str]
