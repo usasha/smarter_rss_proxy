@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import os
 from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
@@ -8,6 +7,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import Response
 import uvicorn
 
+import config
 from agent import FeedGuard
 from rss_loader import Feed
 
@@ -16,7 +16,7 @@ from rss_loader import Feed
 async def lifespan(app: FastAPI):
     logging.info('Starting API server...')
     load_dotenv()
-    app.state.guard = FeedGuard(os.getenv('OPEN_ROUTER_API_KEY'))
+    app.state.guard = FeedGuard(config.OPENROUTER_API_KEY, config.MODEL_NAME)
     yield
 
 app = FastAPI(lifespan=lifespan)

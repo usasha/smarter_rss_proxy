@@ -33,9 +33,13 @@ class MyDeps:
 
 
 class FeedGuard:
-    def __init__(self, api_key: str) -> None:
+    def __init__(self, api_key: str, model: str) -> None:
+        """
+        :param api_key: OpenRouter API key
+        :param model: model name in provider/name format
+        """
         model = OpenAIModel(
-            model_name='google/gemini-2.5-flash-preview-05-20',
+            model_name=model,
             provider=OpenRouterProvider(api_key=api_key),
         )
         self.agent = Agent(
@@ -49,7 +53,11 @@ class FeedGuard:
 
         @self.agent.tool
         async def get_article_preview(ctx: RunContext[MyDeps]) -> str:
-            """Get an article preview."""
+            """
+            Get an article preview.
+            :param ctx: Run context.
+            :return: Article preview.
+            """
             logging.info('tool call')
             try:
                 text = self._html_to_text(ctx.deps.feed_entry['content'][0]['value'])[:2000]
@@ -64,11 +72,23 @@ class FeedGuard:
             logging.info(f'access article text')
             return text
 
-    def _html_to_text(self, html: str) -> str:
+    @staticmethod
+    def _html_to_text(html: str) -> str:
+        """
+        Converts HTML to text.
+        :param html: HTML to be converted.
+        :return: Text content of the HTML page.
+        """
         soup = BeautifulSoup(html, 'html.parser')
         return soup.get_text(separator=' ', strip=True)
 
     async def check_entry(self, entry: dict, content_types: list[str]) -> ContainsThisTypes:
+        """
+        Checks if an entry contains specified content types
+        :param entry: RSS entry to be checked.
+        :param content_types: content types to match against the entry.
+        :return: flag and types list.
+        """
         async with httpx.AsyncClient() as client:
             result = await self.agent.run(
                 f"Content types: {content_types}."
