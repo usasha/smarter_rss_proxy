@@ -1,6 +1,6 @@
-# RSS Feed Loader
+# Smarter RSS proxy
 
-Dead simple Python service for adhoc RSS filtering. Specify URL, topics you want to exclude and fetch new feed.
+Dead simple Python service for on-the-fly RSS filtering. Specify URL, topics you want to exclude and fetch the new feed.
 
 ## Features
 - Excluding content of specified topics 
