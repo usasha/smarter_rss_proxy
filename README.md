@@ -1,157 +1,29 @@
 # RSS Feed Loader
 
-A simple Python script for loading and displaying RSS feeds from specified URLs.
+Dead simple Python service for adhoc RSS filtering. Specify URL, topics you want to exclude and fetch new feed.
 
 ## Features
+- Excluding content of specified topics 
+- Excluding content with certain keywords in the title
 
-- Load RSS feeds from any valid URL
-- Display feed information (title, link, description)
-- Display feed entries with title, publication date, link, and summary
-- Command-line interface with customizable options
-- Error handling for network and parsing issues
-- Can be used as a standalone script or imported as a module
-- FastAPI server for serving RSS feeds via HTTP endpoints
-
-## Installation
-
-1. Clone this repository:
+## How to run
+Sign in to [OpenRouter](https://openrouter.ai/settings/keys) and generate the API key
    ```
    git clone https://github.com/yourusername/smart_rss_proxy.git
    cd smart_rss_proxy
-   ```
-
-2. Install the required dependencies:
-   ```
-   pip install -r requirements.txt
+   docker build -t smart_rss_proxy .
+   docker run -p 8000:8000 -e OPENROUTER_API_KEY=YOUR_API_KEY smart_rss_proxy
    ```
 
 ## Usage
-
-### Command-line Usage
-
-Basic usage:
+Fetch news.ycombinator.com RSS feed and exclude anything about AI or politics and news in general: 
 ```
-python src/rss_loader.py URL
+curl http://localhost:8000/rss/content_type/exclude?url=https%3A%2F%2Fnews.ycombinator.com%2Frss&content_types=politics%2C%20news%2C%20ai
 ```
-
-Or if you've made the script executable:
+Fetch news.ycombinator.com RSS feed and exclude with "OpenAI" in the title:
 ```
-./src/rss_loader.py URL
+curl http://localhost:8000/rss/keywords/exclude?url=https%3A%2F%2Fnews.ycombinator.com%2Frss&keywords=OpenAI
 ```
-
-Where `URL` is the URL of the RSS feed you want to load.
-
-#### Options
-
-- `-l, --limit N`: Display only N entries (default: 10)
-- `-i, --info-only`: Display only feed information, not entries
-
-#### Examples
-
-Load and display a feed with default settings:
-```
-python src/rss_loader.py https://news.ycombinator.com/rss
-```
-
-Load a feed and display only 5 entries:
-```
-python src/rss_loader.py https://news.ycombinator.com/rss --limit 5
-```
-
-Load a feed and display only the feed information:
-```
-python src/rss_loader.py https://news.ycombinator.com/rss --info-only
-```
-
-### Using as a Module
-
-You can also import the RSS loader functions in your own Python scripts:
-
-```python
-from rss_loader import load_rss_feed
-
-# Load an RSS feed
-feed = load_rss_feed("https://news.ycombinator.com/rss")
-
-# Access feed information
-feed_title = feed['feed'].get('title', 'Unknown')
-print(f"Feed Title: {feed_title}")
-
-# Process feed entries
-entries = feed.get('entries', [])
-for entry in entries[:5]:
-    print(entry.get('title', 'No title'))
-```
-
-See `src/example_usage.py` for a complete example of using the RSS loader as a module.
-
-## Testing
-
-To test the RSS loader functionality:
-
-```
-python tests/test_rss_loader.py
-```
-
-Or if you've made the test script executable:
-```
-./tests/test_rss_loader.py
-```
-
-## Error Handling
-
-The script handles various error scenarios:
-- Network connection issues
-- Invalid URLs
-- Invalid RSS feed format
-- Timeouts
-
-If an error occurs, an appropriate error message will be displayed, and the script will exit with a non-zero status code.
-
-## API Server
-
-The project includes a FastAPI server that serves RSS feeds via HTTP endpoints.
-
-### Running the API Server
-
-To start the API server:
-
-```
-python src/api.py
-```
-
-This will start the server on http://0.0.0.0:8000.
-
-### API Endpoints
-
-The API server provides the following endpoints:
-
-- `GET /` - Root endpoint with API information
-- `GET /feed/info?url=<rss_url>` - Get feed information (title, link, description, entry count)
-- `GET /feed/entries?url=<rss_url>&limit=10&filter_ai=false` - Get feed entries
-  - `url` (required): The URL of the RSS feed
-  - `limit` (optional, default=10): Maximum number of entries to return
-  - `filter_ai` (optional, default=false): Filter out entries with 'ai' or 'llm' in the title
-- `GET /feed/raw?url=<rss_url>` - Get the raw RSS feed content as JSON
-- `GET /feed/rss` - Get the RSS feed content in XML format for standard RSS clients (uses the feed that was previously loaded via /feed/info or /feed/entries)
 
 ### API Documentation
-
-The API documentation is available at:
-- Swagger UI: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
-
-### Testing the API
-
-A test script is provided to verify that the API server works correctly:
-
-```
-python src/test_api.py
-```
-
-This script will:
-1. Start the API server
-2. Test all the endpoints
-3. Stop the server after the tests
-
-The test script uses the Hacker News RSS feed (https://news.ycombinator.com/rss) for testing.
+Swagger interactive docs: http://localhost:8000/docs
