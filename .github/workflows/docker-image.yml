@@ -1,0 +1,22 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build image
+      run: docker build . --file Dockerfile --tag smarter_rss_proxy:$(date +%s) --tag smarter_rss_proxy
+    - name: Tests
+      run: docker run smarter_rss_proxy pytest /app/tests
+    - name: Linter
+      run: docker run smarter_rss_proxy ruff check --no-cache /app/src
