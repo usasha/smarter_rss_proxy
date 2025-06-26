@@ -12,8 +12,8 @@ Important: set credit limit for a newly generated key.
    ```
    git clone https://github.com/usasha/smarter_rss_proxy.git
    cd smarter_rss_proxy
-   docker build -t smart_rss_proxy .
-   docker run -p 8000:8000 -e OPENROUTER_API_KEY=YOUR_API_KEY smart_rss_proxy
+   docker build -t smarter_rss_proxy .
+   docker run -p 8000:8000 -e OPENROUTER_API_KEY=YOUR_API_KEY smarter_rss_proxy
    ```
 
 ## Usage

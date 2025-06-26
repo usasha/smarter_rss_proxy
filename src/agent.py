@@ -41,28 +41,28 @@ class FeedGuard:
             instructions='Return true if entry contains any of specified content types. Return the types.'
                          'Check article preview if not sure by title.',
             deps_type=MyDeps,
+            tools=[self._get_article_preview],
         )
 
-        @self.agent.tool
-        async def get_article_preview(ctx: RunContext[MyDeps]) -> str:
-            """
-            Get an article preview.
-            :param ctx: Run context.
-            :return: Article preview.
-            """
-            logging.info('tool call')
-            try:
-                text = self._html_to_text(ctx.deps.feed_entry['content'][0]['value'])[:2000]
-                assert len(text) > 500
-                logging.info(f'access description')
-                return text
-            except (KeyError, AssertionError) as _:
-                pass
-
-            response = await ctx.deps.http_client.get(ctx.deps.feed_entry['link'])
-            text = self._html_to_text(response.text)[:2000]
-            logging.info(f'access article text')
+    async def _get_article_preview(self, ctx: RunContext[MyDeps]) -> str:
+        """
+        Get an article preview.
+        :param ctx: Run context.
+        :return: Article preview.
+        """
+        logging.info('tool call')
+        try:
+            text = self._html_to_text(ctx.deps.feed_entry['content'][0]['value'])[:2000]
+            assert len(text) > 500
+            logging.info('access description')
             return text
+        except (KeyError, AssertionError) as _:
+            pass
+
+        response = await ctx.deps.http_client.get(ctx.deps.feed_entry['link'])
+        text = self._html_to_text(response.text)[:2000]
+        logging.info('access article text')
+        return text
 
     @staticmethod
     def _html_to_text(html: str) -> str:
