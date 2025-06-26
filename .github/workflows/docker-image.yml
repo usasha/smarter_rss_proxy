@@ -17,6 +17,6 @@ jobs:
     - name: Build image
       run: docker build . --file Dockerfile --tag smarter_rss_proxy:$(date +%s)
     - name: Tests
-      run: docker run test pytest /app/tests
+      run: docker run smarter_rss_proxy pytest /app/tests
     - name: Linter
       run: docker run smarter_rss_proxy ruff check --no-cache /app/src
