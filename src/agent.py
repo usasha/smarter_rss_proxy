@@ -54,14 +54,14 @@ class FeedGuard:
         try:
             text = self._html_to_text(ctx.deps.feed_entry['content'][0]['value'])[:2000]
             assert len(text) > 500
-            logging.info(f'access description')
+            logging.info('access description')
             return text
         except (KeyError, AssertionError) as _:
             pass
 
         response = await ctx.deps.http_client.get(ctx.deps.feed_entry['link'])
         text = self._html_to_text(response.text)[:2000]
-        logging.info(f'access article text')
+        logging.info('access article text')
         return text
 
     @staticmethod
