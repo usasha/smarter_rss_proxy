@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSS Filter</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📝</text></svg>">
+    <style>
+        /* Apple Notes inspired styling */
+        :root {
+            --apple-bg: #f0f0f0;
+            --apple-card-bg: #f9f9f9;
+            --apple-input-bg: #ffffff;
+            --apple-accent: #007aff;
+            --apple-text: #333333;
+            --apple-border: #e0e0e0;
+            --apple-success: #34c759;
+            --apple-shadow: rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--apple-bg);
+            color: var(--apple-text);
+            line-height: 1.5;
+        }
+
+        h1 {
+            font-weight: 500;
+            color: var(--apple-text);
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .form-container {
+            background-color: var(--apple-card-bg);
+            padding: 24px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px var(--apple-shadow);
+            border: 1px solid var(--apple-border);
+        }
+
+        .form-row {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .form-row label {
+            width: 120px;
+            margin-right: 10px;
+            font-weight: 500;
+            color: var(--apple-text);
+        }
+
+        .form-row input, .form-row select {
+            flex-grow: 1;
+            padding: 10px 12px;
+            border: 1px solid var(--apple-border);
+            border-radius: 8px;
+            font-size: 15px;
+            background-color: var(--apple-input-bg);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-row input:focus, .form-row select:focus {
+            outline: none;
+            border-color: var(--apple-accent);
+            box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+        }
+
+        /* Remove gradient from select and make it same color as input fields */
+        .form-row select {
+            background-image: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-color: var(--apple-input-bg);
+            padding-right: 25px; /* Space for custom dropdown arrow */
+        }
+
+        /* Add custom dropdown arrow */
+        .form-row label + select {
+            background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+        }
+
+        .button-row {
+            display: flex;
+            justify-content: center;
+            margin: 24px 0;
+        }
+
+        button {
+            background-color: var(--apple-accent);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            font-weight: 500;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        button:hover {
+            background-color: #0071eb;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .result {
+            margin-top: 24px;
+            padding: 20px;
+            background-color: var(--apple-card-bg);
+            border-radius: 10px;
+            min-height: 50px;
+            /* Removed border as per requirement */
+            box-shadow: 0 2px 10px var(--apple-shadow);
+        }
+
+        .result-row {
+            display: flex;
+            align-items: stretch; /* Changed from center to stretch to ensure equal height */
+            flex-wrap: nowrap;
+        }
+
+        .result p {
+            font-weight: 500;
+            margin-top: 0;
+            margin-right: 10px;
+            color: var(--apple-text);
+            margin-bottom: 0;
+        }
+
+        #resultUrl {
+            word-break: break-all;
+            padding: 8px 12px;
+            background-color: var(--apple-input-bg);
+            border-radius: 6px;
+            /* Removed border as per requirement */
+            font-family: monospace;
+            font-size: 14px;
+            flex-grow: 1;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .copy-button {
+            background-color: var(--apple-accent);
+            color: white;
+            border: none;
+            padding: 8px 12px; /* Match the padding of resultUrl */
+            text-align: center;
+            font-size: 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: none; /* Hidden by default */
+            white-space: nowrap; /* Prevent button text from wrapping */
+            box-sizing: border-box; /* Include padding in height calculation */
+            align-self: stretch; /* Stretch to match the height of the parent container */
+        }
+
+        .copy-button:hover {
+            background-color: #0071eb;
+        }
+    </style>
+</head>
+<body>
+    <h1>Smarter RSS Proxy</h1>
+    <div class="form-row">
+        <label for="rssUrl">RSS:</label>
+        <input type="text" id="rssUrl" placeholder="news.ycombinator.com/rss">
+    </div>
+    <div class="form-row">
+        <label for="filterType">Filter type:</label>
+        <select id="filterType">
+            <option value="exclude_content_type">exclude content type</option>
+            <option value="include_content_type">include content type</option>
+            <option value="exclude_keywords">exclude keywords</option>
+            <option value="include_keywords">include keywords</option>
+        </select>
+        <label for="topics" id="topicsLabel" style="margin-left: 30px;">Topics:</label>
+        <input type="text" id="topics" placeholder="magic, clickbait, politics">
+    </div>
+    <div class="result-row">
+        <div id="resultUrl"></div>
+        <button class="copy-button" id="copyButton">Copy</button>
+    </div>
+
+    <script>
+        // Function to update the topics label based on filter type
+        function updateTopicsLabel() {
+            const filterType = document.getElementById('filterType').value;
+            const topicsLabel = document.getElementById('topicsLabel');
+
+            if (filterType === 'exclude_content_type' || filterType === 'include_content_type') {
+                topicsLabel.textContent = 'Content type:';
+            } else {
+                topicsLabel.textContent = 'Keywords:';
+            }
+        }
+
+        // Function to update the result URL based on form inputs
+        function updateResultUrl() {
+            // Get values from form
+            const rssUrlInput = document.getElementById('rssUrl');
+            const filterTypeInput = document.getElementById('filterType');
+            const topicsInput = document.getElementById('topics');
+
+            // Use actual values or placeholders if empty
+            const rssUrl = rssUrlInput.value.trim() || rssUrlInput.placeholder;
+            const filterType = filterTypeInput.value;
+            const topics = topicsInput.value.trim() || topicsInput.placeholder;
+
+            // Determine the endpoint based on filter type
+            let endpoint;
+            let queryParam;
+
+            if (filterType === 'exclude_content_type' || filterType === 'include_content_type') {
+                // For content type filters
+                const includeExclude = filterType.startsWith('include') ? 'include' : 'exclude';
+                endpoint = `/rss/content_type/${includeExclude}`;
+                queryParam = 'content_types';
+            } else {
+                // For keyword filters
+                const includeExclude = filterType.startsWith('include') ? 'include' : 'exclude';
+                endpoint = `/rss/keywords/${includeExclude}`;
+                queryParam = 'keywords';
+            }
+
+            // Build the URL
+            const encodedRssUrl = encodeURIComponent(rssUrl);
+            const encodedTopics = encodeURIComponent(topics);
+            const hostUrl = window.location.origin;
+            const resultUrl = `${hostUrl}${endpoint}?url=${encodedRssUrl}&${queryParam}=${encodedTopics}`;
+
+            // Display the result
+            document.getElementById('resultUrl').textContent = resultUrl;
+
+            // Show the copy button
+            document.getElementById('copyButton').style.display = 'inline-block';
+        }
+
+        // Add event listeners to update the result URL on input changes
+        document.getElementById('rssUrl').addEventListener('input', updateResultUrl);
+        document.getElementById('filterType').addEventListener('change', function() {
+            updateTopicsLabel();
+            updateResultUrl();
+        });
+        document.getElementById('topics').addEventListener('input', updateResultUrl);
+
+        // Generate URL and set initial label on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTopicsLabel();
+            updateResultUrl();
+        });
+
+        // Copy button functionality
+        document.getElementById('copyButton').addEventListener('click', function() {
+            const resultUrl = document.getElementById('resultUrl').textContent;
+            if (resultUrl) {
+                navigator.clipboard.writeText(resultUrl)
+                    .then(() => {
+                        // Visual feedback that copy was successful
+                        const originalText = this.textContent;
+                        this.textContent = 'Copy';
+                        setTimeout(() => {
+                            this.textContent = originalText;
+                        }, 1500);
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy: ', err);
+                        alert('Failed to copy URL to clipboard');
+                    });
+            }
+        });
+    </script>
+</body>
+</html>

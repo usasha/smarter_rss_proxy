@@ -5,6 +5,7 @@ Dead simple Python service for on-the-fly RSS filtering. Specify URL, topics you
 ## Features
 - Excluding content of specified topics 
 - Excluding content with certain keywords in the title
+- Web interface for easy setup
 
 ## How to run
 Sign in to [OpenRouter](https://openrouter.ai/settings/keys) and generate the API key. 
@@ -25,6 +26,7 @@ Fetch news.ycombinator.com RSS feed and exclude with "OpenAI" in the title:
 ```
 curl http://localhost:8000/rss/keywords/exclude?url=https%3A%2F%2Fnews.ycombinator.com%2Frss&keywords=OpenAI
 ```
+You can use a web UI to construct these URLs: http://localhost:8000
 
 ### API Documentation
 Swagger interactive docs: http://localhost:8000/docs
