@@ -6,7 +6,10 @@ import xml.etree.ElementTree as ET
 
 class Feed:
     def __init__(self, url) -> None:
-        self.url = url.lower().strip()
+        url = url.lower().strip()
+        if not url.startswith(("http://", "https://")):
+            url = "http://" + url
+        self.url = url
         response = requests.get(self.url, timeout=10)
         response.raise_for_status()
         self.raw_content = response.content

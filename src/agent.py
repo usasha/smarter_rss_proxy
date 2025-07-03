@@ -59,7 +59,11 @@ class FeedGuard:
         except (KeyError, AssertionError) as _:
             pass
 
-        response = await ctx.deps.http_client.get(ctx.deps.feed_entry['link'])
+        try:
+            response = await ctx.deps.http_client.get(ctx.deps.feed_entry['link'])
+        except httpx.HTTPError as _:
+            logging.info('access article link failed')
+            return ''
         text = self._html_to_text(response.text)[:2000]
         logging.info('access article text')
         return text
