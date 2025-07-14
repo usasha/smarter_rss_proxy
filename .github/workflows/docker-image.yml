@@ -13,7 +13,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: dunny test
-      run: echo ${{ secrets.DOCKERHUB_USERNAME }}/smarter_rss_proxy:${{ github.workflow_sha::7 }}
+      run: echo ${{ secrets.DOCKERHUB_USERNAME }}/smarter_rss_proxy:${GITHUB_SHA:7}
     - name: Build image
       run: docker build . --file Dockerfile --tag smarter_rss_proxy
     - name: Tests
