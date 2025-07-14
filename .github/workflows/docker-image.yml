@@ -12,8 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: dunny test
-      run: echo ${GITHUB_SHA:3}
     - name: Build image
       run: docker build . --file Dockerfile --tag smarter_rss_proxy
     - name: Tests
