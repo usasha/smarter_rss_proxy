@@ -48,13 +48,6 @@ jobs:
     - name: Deploy on server
       run: |
         ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << EOF
-          # Pull the latest image
           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/smarter_rss_proxy:latest
-          
-          # Stop and remove the existing container
-          docker stop smarter_rss_proxy || true
-          docker rm smarter_rss_proxy || true
-          
-          # Run the new container
-          docker run -d --restart unless-stopped --name smarter_rss_proxy -p 8000:8000 -e OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }} ${{ secrets.DOCKERHUB_USERNAME }}/smarter_rss_proxy:latest
+          docker service update --force all_smarter_rss_proxy
         EOF
