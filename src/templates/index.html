@@ -246,7 +246,9 @@
             const encodedRssUrl = encodeURIComponent(rssUrl);
             const encodedTopics = encodeURIComponent(topics);
             const hostUrl = window.location.origin;
-            const resultUrl = `${hostUrl}${endpoint}?url=${encodedRssUrl}&${queryParam}=${encodedTopics}`;
+            const urlPrefix = "{{ url_prefix }}";
+            const resultUrl = `${hostUrl}${urlPrefix}
+${endpoint}?url=${encodedRssUrl}&${queryParam}=${encodedTopics}`;
 
             // Display the result
             document.getElementById('resultUrl').textContent = resultUrl;

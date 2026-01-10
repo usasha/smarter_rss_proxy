@@ -28,7 +28,7 @@ async def lifespan(app: FastAPI):
     )
     yield
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=lifespan, root_path=config.URL_PREFIX)
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
@@ -37,7 +37,7 @@ async def index(request: Request):
     """
     Serve the main page with the RSS filter form.
     """
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse('index.html', {'request': request, 'url_prefix': config.URL_PREFIX})
 
 
 @app.get('/rss/keywords/include')
