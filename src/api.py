@@ -37,8 +37,11 @@ async def index(request: Request):
     """
     Serve the main page with the RSS filter form.
     """
-    return templates.TemplateResponse('index.html', {'request': request, 'url_prefix': config.URL_PREFIX})
-
+    return templates.TemplateResponse(
+        name="index.html",
+        request=request,
+        context={"url_prefix": config.URL_PREFIX},
+    )
 
 @app.get('/rss/keywords/include')
 async def keywords_include(url: str, keywords: str) -> Response:
