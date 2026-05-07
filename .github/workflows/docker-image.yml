@@ -49,5 +49,5 @@ jobs:
       run: |
         ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << EOF
           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/smarter_rss_proxy:latest
-          docker service update --force all_smarter_rss_proxy
+          docker service update --force --image ${{ secrets.DOCKERHUB_USERNAME }}/smarter_rss_proxy:latest all_smarter_rss_proxy
         EOF
